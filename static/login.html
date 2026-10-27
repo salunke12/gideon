@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#04060d">
+  <title>Sign in to Gideon</title>
+  <link rel="icon" href="/static/logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/login.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <span class="arc arc-top"></span>
+    <span class="arc arc-bottom"></span>
+    <span class="arc arc-right"></span>
+  </div>
+
+  <section class="showcase" aria-label="What Gideon does">
+    <div class="brand-row">
+      <img class="logo" src="/static/logo.png" alt="" width="52" height="52">
+      <h1 class="brand-name">Gideon</h1>
+    </div>
+
+    <h2 class="headline">Study with your <span class="grad">personal AI companion</span>.</h2>
+    <p class="lede">Talk, type and keep time, all in one calm place.</p>
+
+    <ul class="features">
+      <li class="feature">
+        <span class="f-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 9.5v4l2.5 1.5M9.5 3h5"/></svg></span>
+        <div>
+          <h3>Timers that keep real time</h3>
+          <p>Ask for a focus or break timer. It runs in code, so it is exact, and it chimes when time is up.</p>
+        </div>
+      </li>
+      <li class="feature">
+        <span class="f-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l9 4.5-9 4.5-9-4.5zM3 12l9 4.5 9-4.5M3 16.5L12 21l9-4.5"/></svg></span>
+        <div>
+          <h3>Remembers you</h3>
+          <p>Gideon recalls your earlier chats and calls you by your first name.</p>
+        </div>
+      </li>
+      <li class="feature">
+        <span class="f-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h13"/></svg></span>
+        <div>
+          <h3>See and clear your chat</h3>
+          <p>Read everything said in a live transcript, and delete any of it whenever you want.</p>
+        </div>
+      </li>
+      <li class="feature">
+        <span class="f-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></span>
+        <div>
+          <h3>Talk or type, your choice</h3>
+          <p>Speak with Gideon and interrupt whenever you like, or type when you can't talk. Gideon answers out loud, or mute Gideon for a text-only chat.</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <div class="panel">
+    <main class="card">
+      <div class="card-brand" aria-hidden="true">
+        <img class="logo" src="/static/logo.png" alt="" width="48" height="48">
+        <span>Gideon</span>
+      </div>
+      <h2>Welcome back</h2>
+      <p class="card-sub">Log in to pick up where you left off.</p>
+
+    <form id="login-form" class="form" novalidate>
+      <div class="field">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.6-3.7 3.5-6 7.5-6s6.9 2.3 7.5 6"/></svg>
+        <input id="username" name="username" type="text" placeholder="Username" aria-label="Username"
+               autocomplete="username" maxlength="50" required autofocus>
+      </div>
+
+      <div class="field">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>
+        <input id="password" name="password" type="password" placeholder="Password" aria-label="Password"
+               autocomplete="current-password" maxlength="200" required>
+        <button id="toggle-pw" class="reveal" type="button" aria-label="Show password" aria-pressed="false">
+          <svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.2A9.9 9.9 0 0 1 12 5c5 0 8.5 4.2 9.5 7a11.6 11.600 0 0 1-2.7 4.2M6.6 6.7A11.7 11.7 0 0 0 2.500 12c1 2.800 4.500 7 9.500 7 1.500 0 2.800-.4 4-.9"/><path d="M9.900 9.900a3 3 0 0 0 4.200 4.200"/></svg>
+          <svg class="eye-on" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M2.500 12C3.500 9.200 7 5 12 5s8.500 4.200 9.500 7c-1 2.800-4.500 7-9.500 7s-8.500-4.200-9.500-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <button id="submit" class="signin" type="submit">
+        <span class="label">Sign In</span>
+        <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </form>
+    </main>
+  </div>
+
+  <script src="/static/login.js"></script>
+</body>
+</html>

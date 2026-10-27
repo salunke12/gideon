@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gideon Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/logo.png" type="image/png">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body class="admin-page">
+  <div class="bg" aria-hidden="true">
+    <span class="arc arc-top"></span>
+    <span class="arc arc-bottom"></span>
+    <span class="arc arc-right"></span>
+  </div>
+
+  <header class="top">
+    <h1 class="brand"><img class="logo" src="/static/logo.png" alt="" width="40" height="40">Gideon <span class="badge badge-admin">Admin</span></h1>
+    <div class="top-actions">
+      <div id="user-chip" class="user-chip" hidden>
+        <span id="avatar" class="avatar" aria-hidden="true"></span>
+        <span id="who" class="who"></span>
+      </div>
+      <button id="logout" class="ghost" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <section class="stats" aria-label="Summary">
+      <div class="stat"><p class="stat-num" id="stat-total">0</p><p class="stat-label">Users</p></div>
+      <div class="stat"><p class="stat-num" id="stat-active">0</p><p class="stat-label">Active</p></div>
+      <div class="stat"><p class="stat-num" id="stat-disabled">0</p><p class="stat-label">Disabled</p></div>
+      <div class="stat"><p class="stat-num" id="stat-nokey">0</p><p class="stat-label">Without an API key</p></div>
+    </section>
+
+    <section class="panel" aria-label="Users">
+      <div class="panel-head">
+        <h2>Users</h2>
+        <div class="panel-tools">
+          <label class="sr-only" for="search">Search users</label>
+          <input id="search" type="search" placeholder="Search users" autocomplete="off">
+          <button id="add-user" class="primary" type="button">Add user</button>
+        </div>
+      </div>
+      <p id="list-error" class="form-error list-error" role="alert" hidden></p>
+      <div class="table-wrap">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th scope="col">User</th>
+              <th scope="col">Role</th>
+              <th scope="col">Status</th>
+              <th scope="col">API key</th>
+              <th scope="col">Last login</th>
+              <th scope="col"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody id="user-rows"></tbody>
+        </table>
+      </div>
+      <p id="empty-rows" class="empty empty-rows">Loading users</p>
+    </section>
+  </main>
+
+  <dialog id="user-dialog" class="user-dialog">
+    <form id="user-form" class="user-form" autocomplete="off" novalidate>
+      <h2 id="dialog-title">Edit user</h2>
+
+      <label>Username
+        <input id="f-username" type="text" maxlength="50" autocomplete="off">
+      </label>
+      <label>First name
+        <input id="f-first" type="text" maxlength="50" autocomplete="off">
+      </label>
+
+      <div class="two">
+        <label>Role
+          <select id="f-role"><option value="user">User</option><option value="admin">Admin</option></select>
+        </label>
+        <label id="status-field">Status
+          <select id="f-status"><option value="active">Active</option><option value="disabled">Disabled</option></select>
+        </label>
+      </div>
+
+      <label>Gemini API key
+        <input id="f-key" type="text" spellcheck="false" autocomplete="off">
+      </label>
+      <label class="check" id="clear-key-field"><input id="f-clear-key" type="checkbox"> Remove the saved key</label>
+
+      <label>Password
+        <input id="f-password" type="password" maxlength="200" autocomplete="new-password">
+      </label>
+      <label class="check" id="reset-field"><input id="f-reset" type="checkbox"> Reset login attempts to 5</label>
+      <p id="attempts-note" class="note"></p>
+
+      <p id="form-error" class="form-error" role="alert" hidden></p>
+
+      <div id="dialog-actions" class="row dialog-actions">
+        <button id="delete-user" class="ghost danger-text" type="button">Delete user</button>
+        <span class="spacer"></span>
+        <button id="cancel" class="ghost" type="button">Cancel</button>
+        <button id="save" class="primary" type="submit">Save</button>
+      </div>
+
+      <div id="delete-confirm" class="delete-confirm" hidden>
+        <p id="delete-text"></p>
+        <div class="row">
+          <button id="keep-user" class="ghost" type="button">Keep user</button>
+          <button id="confirm-delete" class="danger" type="button">Delete user</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="logout-dialog">
+    <form method="dialog" class="confirm-form">
+      <h2>Log out?</h2>
+      <p>Do you want to log out of the admin dashboard?</p>
+      <div class="row">
+        <button value="cancel" class="ghost">Stay logged in</button>
+        <button value="logout" class="primary">Log out</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/static/admin.js"></script>
+</body>
+</html>

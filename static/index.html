@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gideon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="icon" href="/static/logo.png" type="image/png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-phase="idle">
+  <div class="bg" aria-hidden="true">
+    <span class="arc arc-top"></span>
+    <span class="arc arc-bottom"></span>
+    <span class="arc arc-right"></span>
+  </div>
+
+  <header class="top">
+    <h1 class="brand"><img class="logo" src="/static/logo.png" alt="" width="40" height="40"><span class="brand-name">Gideon</span></h1>
+    <button id="chat-switch" class="chat-switch" type="button" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v7a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V16h-.5A2.5 2.5 0 0 1 4 13.5z"/></svg>
+      <span id="chat-switch-title" class="chat-switch-title">Chat</span>
+      <svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="top-actions">
+      <div id="user-chip" class="user-chip" hidden>
+        <span id="avatar" class="avatar" aria-hidden="true"></span>
+        <span id="who" class="who"></span>
+      </div>
+      <button id="open-settings" class="ghost" type="button">Settings</button>
+      <button id="logout" class="ghost" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage" aria-label="Voice conversation">
+      <canvas id="orb" aria-hidden="true"></canvas>
+      <p id="status" class="status" role="status">Ready when you are</p>
+      <p id="detail" class="detail">Use headphones so the mic doesn't pick up the reply.</p>
+      <ul id="timers" class="timers" aria-label="Running timers"></ul>
+      <p id="notice" class="notice" role="status" hidden></p>
+      <div class="controls">
+        <button id="toggle" class="primary" type="button">Start talking</button>
+        <button id="mute" class="ghost" type="button" disabled aria-pressed="false">Mute mic</button>
+        <button id="voice-off" class="ghost" type="button" aria-pressed="false">Mute Gideon</button>
+      </div>
+      <div class="volume">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6M17.8 6.7a7.3 7.3 0 0 1 0 10.6"/></svg>
+        <label class="sr-only" for="volume">Gideon's volume</label>
+        <input id="volume" type="range" min="0" max="100" step="1" value="60">
+        <output id="volume-value" for="volume">60%</output>
+      </div>
+    </section>
+
+    <aside class="transcript" aria-label="Transcript">
+      <div class="transcript-head">
+        <h2>Transcript</h2>
+        <button id="open-history" class="ghost small" type="button">Delete history</button>
+      </div>
+      <div id="log" class="log" role="log" aria-live="polite">
+        <p id="empty" class="empty">Your conversation will show up here as you talk or type.</p>
+      </div>
+      <form id="composer" class="composer" autocomplete="off">
+        <label class="sr-only" for="message">Message Gideon</label>
+        <textarea id="message" rows="1" maxlength="2000" placeholder="Type a message. Gideon answers out loud."></textarea>
+        <button class="primary send" type="submit" aria-label="Send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+    </aside>
+  </main>
+
+  <dialog id="settings">
+    <form method="dialog" class="settings-form">
+      <h2>Settings</h2>
+      <label>Voice
+        <select id="voice">
+          <option>Puck</option><option>Charon</option><option>Kore</option><option>Fenrir</option>
+          <option>Aoede</option><option>Zephyr</option><option>Leda</option><option>Orus</option>
+        </select>
+      </label>
+      <label>Model
+        <select id="model">
+          <option value="gemini-3.8-live">Gemini 3.8 Live (recommended)</option>
+          <option value="gemini-3.1-flash-live-preview">Gemini 3.1 Flash Live (preview)</option>
+        </select>
+      </label>
+      <label>Extra instructions (optional)
+        <textarea id="prompt" rows="4" placeholder="For example: I'm studying for my biology exam. Quiz me when I ask."></textarea>
+      </label>
+      <p class="note">Changes apply the next time you start a conversation.</p>
+      <div class="row">
+        <button value="cancel" class="ghost">Cancel</button>
+        <button value="save" class="primary">Save settings</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="chats-dialog" class="chats-dialog">
+    <div class="chats-head">
+      <h2>Your chats</h2>
+      <p class="note">Each chat keeps its own history and memory, so you can study different subjects separately.</p>
+    </div>
+    <form id="new-chat-form" class="new-chat-form" autocomplete="off">
+      <label class="sr-only" for="new-chat-title">Name for a new chat</label>
+      <input id="new-chat-title" type="text" maxlength="60" placeholder="Name a new chat, e.g. Biology">
+      <button class="primary" type="submit">New chat</button>
+    </form>
+    <p id="chats-error" class="chats-error" role="alert" hidden></p>
+    <ul id="chat-list" class="chat-list"></ul>
+    <div class="chats-actions">
+      <button id="chats-close" class="ghost" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <dialog id="history-dialog" class="history-dialog">
+    <div class="history-head">
+      <h2>Delete history</h2>
+      <p class="note">Tick the messages you want to delete from <strong id="history-chat"></strong>, or clear that whole chat.</p>
+    </div>
+    <div id="history-list" class="history-list" tabindex="0"></div>
+    <p id="history-error" class="history-error" role="alert" hidden></p>
+    <div id="history-confirm" class="history-confirm" hidden>
+      <p id="clear-text">This deletes all saved messages in this chat. It can't be undone.</p>
+      <div class="row">
+        <button id="keep-chats" class="ghost" type="button">Keep my chats</button>
+        <button id="confirm-clear" class="danger" type="button">Delete everything</button>
+      </div>
+    </div>
+    <div id="history-actions" class="history-actions">
+      <button id="clear-all" class="ghost danger-text" type="button">Clear all chat history</button>
+      <span class="spacer"></span>
+      <button id="history-close" class="ghost" type="button">Close</button>
+      <button id="delete-selected" class="danger" type="button" disabled>Delete selected</button>
+    </div>
+  </dialog>
+
+  <dialog id="logout-dialog">
+    <form method="dialog" class="confirm-form">
+      <h2>Log out?</h2>
+      <p>Do you want to log out of Gideon? Any conversation in progress will stop.</p>
+      <div class="row">
+        <button value="cancel" class="ghost">Stay logged in</button>
+        <button value="logout" class="primary">Log out</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

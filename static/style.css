@@ -1,0 +1,695 @@
+/* Gideon chat view. Always dark, same look as the login page. */
+:root {
+  color-scheme: dark;
+  --bg: #04060d;
+  --text: #eef1ff;
+  --muted: #8a93b4;
+  --accent: #7c8cff;
+  --listen: #7c8cff;
+  --speak: #ffb454;
+  --danger: #ff7d8b;
+  --glass: rgb(255 255 255 / 0.05);
+  --glass-line: rgb(255 255 255 / 0.12);
+  --card-line: rgb(150 160 255 / 0.28);
+  --grad: linear-gradient(90deg, #6a4df0 0%, #5a6ef3 50%, #66adff 100%);
+  /* orb colours, read by app.js */
+  --orb-listen-a: #6a4df0;
+  --orb-listen-b: #66adff;
+  --orb-speak-a: #ff8a3d;
+  --orb-speak-b: #ffd27a;
+  --orb-idle-a: #4a5478;
+  --orb-idle-b: #8a93b4;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "DM Sans", "Segoe UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 1rem;
+  line-height: 1.5;
+  scrollbar-color: rgb(255 255 255 / 0.2) transparent;
+}
+
+h1, h2 { margin: 0; font-family: var(--display); }
+
+/* ---------- background ---------- */
+.bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60vmax 60vmax at 100% 0%, rgb(59 91 219 / 0.5), transparent 62%),
+    radial-gradient(55vmax 55vmax at 0% 100%, rgb(67 97 238 / 0.42), transparent 62%),
+    radial-gradient(40vmax 40vmax at 100% 78%, rgb(124 92 255 / 0.38), transparent 62%),
+    radial-gradient(40vmax 40vmax at 0% 12%, rgb(40 50 160 / 0.4), transparent 62%),
+    var(--bg);
+}
+
+.arc { position: absolute; border-radius: 50%; background: var(--bg); }
+.arc-top { width: 80vmax; height: 80vmax; left: -55vmax; top: 30%; box-shadow: 0 -3px 90px 4px rgb(80 110 255 / 0.4); }
+.arc-bottom { width: 70vmax; height: 70vmax; right: -30vmax; top: 72%; box-shadow: 0 -3px 90px 4px rgb(110 100 255 / 0.45); }
+.arc-right { width: 60vmax; height: 60vmax; left: 62%; top: -48vmax; box-shadow: 0 3px 90px 4px rgb(70 100 255 / 0.4); }
+
+.top, .layout, dialog { position: relative; z-index: 1; }
+
+/* ---------- header ---------- */
+/* Liquid-glass top bar: a floating, translucent pill with a soft highlight. */
+.top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.75rem clamp(1rem, 3vw, 2rem);
+  padding: 0.45rem 0.55rem 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  background:
+    linear-gradient(135deg, rgb(255 255 255 / 0.15), rgb(255 255 255 / 0.04) 45%, rgb(255 255 255 / 0.09));
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  backdrop-filter: blur(22px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.35),
+    inset 0 -1px 0 rgb(255 255 255 / 0.06),
+    inset 0 0 28px rgb(150 160 255 / 0.1),
+    0 12px 40px rgb(0 0 0 / 0.4);
+}
+
+.top::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(105deg, rgb(255 255 255 / 0.2) 0%, rgb(255 255 255 / 0) 30%);
+  pointer-events: none;
+}
+
+.top > * { position: relative; }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 0 1px rgb(140 150 255 / 0.35), 0 6px 20px rgb(90 110 255 / 0.3);
+}
+
+.top-actions { display: flex; align-items: center; gap: 0.625rem; }
+.top-actions button {
+  padding: 0.5rem 1.125rem;
+  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.2);
+}
+
+/* Signed-in user: gradient avatar + bright name so it stands out. */
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 1rem 0.25rem 0.3rem;
+  border-radius: 999px;
+  border: 1px solid rgb(150 160 255 / 0.45);
+  background: linear-gradient(135deg, rgb(106 77 240 / 0.3), rgb(102 173 255 / 0.18));
+  box-shadow: 0 0 22px rgb(106 110 255 / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.2);
+}
+
+.user-chip[hidden] { display: none; }
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--grad);
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.25), 0 4px 14px rgb(90 110 255 / 0.5);
+}
+
+.who { font-weight: 500; color: var(--text); letter-spacing: 0.01em; }
+
+/* ---------- layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+  grid-template-rows: minmax(0, 1fr);
+  gap: clamp(1rem, 2vw, 1.5rem);
+  min-height: 0;
+  padding: 0 clamp(1rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 0;
+  padding: 0.5rem 1.5rem 1rem;
+  overflow-y: auto;
+  text-align: center;
+}
+
+/* The orb takes whatever height is left after the text and buttons, so nothing is pushed off screen. */
+#orb {
+  flex: 1 1 0;
+  min-height: 7rem;
+  max-height: 520px;
+  aspect-ratio: 1;
+  width: auto;
+  max-width: 100%;
+}
+
+.stage > :not(#orb) { flex: none; }
+
+.status {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+body[data-phase="listening"] .status { color: #9aa9ff; }
+body[data-phase="speaking"] .status { color: var(--speak); }
+body[data-phase="error"] .status { color: var(--danger); }
+
+.detail {
+  margin: 0;
+  min-height: 3em;
+  max-width: 46ch;
+  color: var(--muted);
+}
+
+.controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 0.75rem; }
+.controls button { height: 3.25rem; }
+.controls .primary { padding-inline: 2rem; font-size: 1.0625rem; }
+
+/* ---------- buttons ---------- */
+button {
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  transition: background-color 0.15s, border-color 0.15s, opacity 0.15s, filter 0.15s, box-shadow 0.15s;
+}
+
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.primary {
+  color: #fff;
+  background: var(--grad);
+  border-color: rgb(255 255 255 / 0.25);
+  box-shadow: 0 10px 30px rgb(90 110 255 / 0.3);
+}
+
+.primary:hover:not(:disabled) { filter: brightness(1.1); box-shadow: 0 12px 36px rgb(90 110 255 / 0.5); }
+
+.primary.live {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+  box-shadow: none;
+}
+
+.ghost {
+  color: var(--text);
+  background: var(--glass);
+  border-color: var(--glass-line);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.ghost:hover:not(:disabled) { border-color: rgb(255 255 255 / 0.3); background: rgb(255 255 255 / 0.09); }
+.ghost[aria-pressed="true"] { border-color: var(--danger); color: var(--danger); }
+
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+/* ---------- transcript ---------- */
+.transcript {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  border: 1px solid var(--card-line);
+  background: linear-gradient(155deg, rgb(255 255 255 / 0.09), rgb(255 255 255 / 0.025) 60%);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 30px 80px rgb(0 0 0 / 0.45), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}
+
+.transcript h2 { padding: 1.25rem 1.5rem 0.5rem; font-size: 1.125rem; }
+
+.log {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem 1.5rem 1.25rem;
+}
+
+.empty { margin: 0; color: var(--muted); }
+
+.day-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.25rem 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.day-divider::before, .day-divider::after { content: ""; flex: 1; height: 1px; background: var(--glass-line); }
+
+.msg { max-width: 88%; }
+.msg p { margin: 0; padding: 0.625rem 0.9rem; border-radius: 1.125rem; overflow-wrap: anywhere; }
+
+.msg.user { align-self: flex-end; }
+.msg.user p {
+  background: linear-gradient(135deg, rgb(106 77 240 / 0.55), rgb(102 173 255 / 0.4));
+  border: 1px solid rgb(150 160 255 / 0.35);
+  border-bottom-right-radius: 0.3rem;
+}
+
+.msg.ai { align-self: flex-start; }
+.msg.ai p {
+  background: rgb(255 255 255 / 0.07);
+  border: 1px solid var(--glass-line);
+  border-bottom-left-radius: 0.3rem;
+}
+
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--glass-line);
+}
+
+.composer textarea {
+  flex: 1;
+  min-width: 0;
+  height: 3rem;
+  min-height: 3rem;
+  max-height: 9.5rem;
+  padding: 0.75rem 1.125rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.25) transparent;
+  font: inherit;
+  line-height: 1.4;
+  color: var(--text);
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 1.5rem;
+  resize: none;
+  overflow-y: hidden;  /* app.js turns the scrollbar on only when the text outgrows the box */
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.composer textarea::placeholder { color: var(--muted); }
+.composer textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgb(124 140 255 / 0.22); }
+
+.send {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+}
+
+.send svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- timers + notices ---------- */
+.timers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 0.375rem 0.375rem 1rem;
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.t-name { color: var(--muted); }
+.t-time { font-family: var(--display); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.t-cancel {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  line-height: 1;
+  background: transparent;
+  color: var(--muted);
+  border-color: transparent;
+}
+
+.t-cancel:hover { color: var(--danger); border-color: var(--danger); }
+
+.notice { margin: 0; max-width: 46ch; font-size: 0.9375rem; color: var(--speak); }
+
+/* ---------- dialogs ---------- */
+dialog {
+  width: min(92vw, 28rem);
+  padding: 0;
+  border: 1px solid var(--card-line);
+  border-radius: 1.75rem;
+  background: rgb(14 18 38 / 0.94);
+  color: var(--text);
+  box-shadow: 0 30px 80px rgb(0 0 0 / 0.6);
+}
+
+dialog::backdrop {
+  background: rgb(2 4 10 / 0.65);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.settings-form, .confirm-form { display: grid; gap: 1rem; padding: 1.75rem; }
+.settings-form h2, .confirm-form h2 { font-size: 1.5rem; }
+.confirm-form p { margin: 0; color: var(--muted); }
+
+label { display: grid; gap: 0.375rem; font-weight: 500; }
+
+select, textarea {
+  font: inherit;
+  color: var(--text);
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 1rem;
+  padding: 0.7rem 0.9rem;
+}
+
+select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px rgb(124 140 255 / 0.22); }
+
+textarea { resize: vertical; }
+.note { margin: 0; color: var(--muted); font-size: 0.875rem; }
+.row { display: flex; justify-content: flex-end; gap: 0.75rem; }
+
+/* ---------- small screens and short windows ---------- */
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(14rem, 40vh); }
+  #orb { flex: none; width: min(50vw, 260px); min-height: 0; }
+  .stage { padding-top: 0; }
+  .who { display: none; }
+  .user-chip { padding-right: 0.3rem; }
+}
+
+@media (max-height: 760px) and (min-width: 801px) {
+  .detail { min-height: 0; }
+  .status { font-size: 1.75rem; }
+  .top { padding-block: 0.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.transcript-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem 0.5rem;
+}
+.transcript-head h2 { padding: 0; }
+
+.small { padding: 0.4rem 0.95rem; font-size: 0.875rem; }
+.danger { background: var(--danger); color: #1c0a10; }
+.danger:hover:not(:disabled) { filter: brightness(1.08); }
+.danger-text { color: var(--danger); }
+
+.history-dialog { width: min(94vw, 40rem); }
+.history-dialog[open] { display: flex; flex-direction: column; max-height: min(88dvh, 44rem); }
+.history-head { padding: 1.5rem 1.75rem 0.5rem; }
+.history-head h2 { font-size: 1.5rem; }
+.history-head .note { margin-top: 0.25rem; }
+
+.history-list {
+  flex: 1;
+  min-height: 8rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.5rem 1.75rem 1rem;
+}
+
+.conv { display: flex; flex-direction: column; gap: 0.6rem; }
+.conv-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.conv-select { display: flex; align-items: center; gap: 0.4rem; font-weight: 400; cursor: pointer; }
+
+.pick { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; font-weight: 400; }
+.pick input, .conv-select input { width: 1.1rem; height: 1.1rem; flex: none; accent-color: var(--danger); cursor: pointer; }
+.pick .msg { flex: 1; max-width: none; display: flex; }
+.pick .msg p { max-width: 88%; }
+.pick .msg.user { justify-content: flex-end; }
+.pick:has(input:checked) .msg p { outline: 2px solid var(--danger); outline-offset: 2px; }
+
+.history-error { margin: 0; padding: 0 1.75rem 0.5rem; color: var(--danger); }
+
+.history-actions, .history-confirm {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.75rem 1.5rem;
+  border-top: 1px solid var(--glass-line);
+}
+.history-actions[hidden], .history-confirm[hidden], .history-error[hidden] { display: none; }
+.history-confirm { flex-direction: column; align-items: stretch; }
+.history-confirm p { margin: 0; }
+.spacer { flex: 1; }
+
+/* Dropdown lists: the browser draws them itself, so give them dark colours too (they were white on white). */
+select { color-scheme: dark; }
+select option {
+  background-color: #11152b;
+  color: var(--text);
+}
+select option:checked,
+select option:hover {
+  background-color: #2a3270;
+  color: #fff;
+}
+
+/* ---------- chats ---------- */
+.chat-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  max-width: min(22rem, 38vw);
+  margin: 0 auto 0 1.25rem;
+  padding: 0.45rem 0.9rem;
+  background: rgb(255 255 255 / 0.08);
+  border-color: rgb(255 255 255 / 0.2);
+}
+.chat-switch svg { flex: none; width: 1.15rem; height: 1.15rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.chat-switch .chevron { width: 1rem; height: 1rem; color: var(--muted); }
+.chat-switch-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.chats-dialog { width: min(94vw, 34rem); }
+.chats-dialog[open] { display: flex; flex-direction: column; max-height: min(88dvh, 44rem); }
+.chats-head { padding: 1.5rem 1.75rem 0.5rem; }
+.chats-head h2 { font-size: 1.5rem; }
+.chats-head .note { margin-top: 0.25rem; }
+
+.new-chat-form { display: flex; gap: 0.6rem; padding: 0.5rem 1.75rem 0.75rem; }
+.chats-dialog input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: var(--text);
+  background: var(--glass);
+  border: 1px solid var(--glass-line);
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+}
+.chats-dialog input::placeholder { color: var(--muted); }
+.chats-error { margin: 0; padding: 0 1.75rem 0.5rem; color: var(--danger); }
+.chats-error[hidden] { display: none; }
+
+.chat-list {
+  flex: 1;
+  min-height: 6rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.25rem 1.75rem 1rem;
+  list-style: none;
+}
+
+.chat-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem 0.35rem 0.35rem;
+  border-radius: 1.1rem;
+  border: 1px solid var(--glass-line);
+  background: var(--glass);
+}
+.chat-row.active { border-color: var(--card-line); background: linear-gradient(135deg, rgb(106 77 240 / 0.28), rgb(102 173 255 / 0.14)); }
+
+.chat-main {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 0.8rem;
+  color: var(--text);
+}
+.chat-main:hover { background: rgb(255 255 255 / 0.06); }
+.chat-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.chat-meta { display: block; color: var(--muted); font-size: 0.8125rem; }
+.chat-current { margin-left: 0.4rem; padding: 0.05rem 0.5rem; border-radius: 999px; font-size: 0.75rem; background: var(--grad); color: #fff; }
+
+.chat-row .small { flex: none; }
+.chat-row input[type="text"] { padding: 0.5rem 0.9rem; }
+.chat-ask { flex: 1; min-width: 0; margin: 0; padding: 0 0.5rem; }
+
+.chats-actions { display: flex; justify-content: flex-end; padding: 1rem 1.75rem 1.5rem; border-top: 1px solid var(--glass-line); }
+
+@media (max-width: 800px) {
+  .chat-switch { max-width: 11rem; margin-left: 0.5rem; }
+}
+
+/* Small screens: keep the header on one row by hiding the word "Gideon" (the logo stays). */
+@media (max-width: 680px) {
+  .brand-name { display: none; }
+  .chat-switch { max-width: none; flex: 1 1 0; margin: 0 0.5rem; }
+}
+
+/* Very narrow phones: the chat button gets its own row inside the header. */
+@media (max-width: 480px) {
+  .top { flex-wrap: wrap; row-gap: 0.5rem; border-radius: 1.6rem; padding-right: 0.75rem; }
+  .top-actions { margin-left: auto; }
+  .chat-switch { order: 3; flex: 1 1 100%; margin: 0 0 0.1rem; }
+  .chat-switch-title { flex: 1; text-align: left; }
+  .chat-switch .chevron { margin-left: auto; }
+}
+
+@media (max-width: 400px) {
+  .top-actions { gap: 0.4rem; }
+  .top-actions button { padding: 0.45rem 0.8rem; font-size: 0.9375rem; }
+}
+
+/* ---------- volume ---------- */
+.volume { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-top: 0.25rem; color: var(--muted); }
+.volume svg { flex: none; width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.volume output { min-width: 3.2ch; text-align: right; font-variant-numeric: tabular-nums; font-size: 0.9375rem; }
+
+.volume input[type="range"] {
+  --fill: 60%;
+  -webkit-appearance: none;
+  appearance: none;
+  width: min(14rem, 50vw);
+  height: 0.4rem;
+  margin: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6a4df0, #66adff) 0 / var(--fill) 100% no-repeat, rgb(255 255 255 / 0.16);
+  cursor: pointer;
+}
+.volume input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #6a4df0;
+  box-shadow: 0 0 14px rgb(106 110 255 / 0.6);
+}
+.volume input[type="range"]::-moz-range-thumb {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #6a4df0;
+  box-shadow: 0 0 14px rgb(106 110 255 / 0.6);
+}
+.volume input[type="range"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+
+/* Phones: a more compact stage so the buttons and the volume slider stay visible above the transcript.
+   If it still doesn't fit (very small screens), the stage scrolls instead of hiding things. */
+@media (max-width: 800px) {
+  .layout { grid-template-rows: minmax(0, 1fr) minmax(11rem, 30vh); }
+  .stage { justify-content: flex-start; gap: 0.35rem; padding-bottom: 0.5rem; }
+  #orb { width: min(34vw, 140px); }
+  .status { font-size: 1.3rem; }
+  .detail { font-size: 0.9375rem; }
+  .controls { flex-wrap: nowrap; gap: 0.4rem; margin-top: 0.3rem; }
+  .controls button { height: 2.5rem; padding-inline: 0.75rem; font-size: 0.875rem; white-space: nowrap; }
+  .controls .primary { padding-inline: 1rem; font-size: 0.9375rem; }
+}
+
+@media (max-width: 350px) {
+  .controls { flex-wrap: wrap; }
+}
